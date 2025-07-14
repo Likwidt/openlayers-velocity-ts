@@ -5,7 +5,7 @@
   "main": "dist/openlayers-velocity.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --display-modules",
+    "build": "webpack",
     "watch": "webpack --progress --colors --watch"
   },
   "author": "xorbits <xorbits@orbits.app>",
@@ -20,19 +20,18 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "css-loader": "^1.0.0",
-    "node-sass": "^4.9.3",
-    "sass-loader": "^7.1.0",
-    "style-loader": "^0.22.1",
-    "ts-loader": "^4.5.0",
-    "typescript": "^3.0.1",
+    "css-loader": "^7.1.2",
+    "node-sass": "^9.0.0",
+    "sass-loader": "^16.0.5",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
     "typings-for-css-modules-loader": "^1.7.0",
-    "webpack": "^4.17.1",
-    "webpack-cli": "^3.1.0",
-    "webpack-node-externals": "^1.7.2"
+    "webpack": "^5.100.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@types/ol": "^4.6.2",
-    "ol": "^5.1.3"
+    "ol": "^10.6.1"
   }
 }

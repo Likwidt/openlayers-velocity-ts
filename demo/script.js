@@ -1,7 +1,6 @@
 var mymap = new Map({
   layers: [
     new TileLayer({
-      source: new Stamen({layer: 'toner'})
     })
   ],
   target: 'mapid',

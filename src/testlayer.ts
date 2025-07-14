@@ -1,6 +1,4 @@
 import TileLayer from 'ol/layer/Tile';
-import ImageCanvasSource from 'ol/source/ImageCanvas';
-import Stamen from 'ol/source/Stamen';
 
 
 export default class TestLayer {
@@ -21,9 +19,9 @@ export default class TestLayer {
   getMapLayer() {
     console.debug('TestLayer.getMapLayer');
     this._layer = this._layer || new TileLayer({
-      source: new Stamen({
-        layer: 'toner'
-      })
+      // source: new Stamen({
+      //   layer: 'toner'
+      // })
     });
     console.debug('TestLayer.getMapLayer return');
     return this._layer;

@@ -5,7 +5,6 @@ import Layer from './layer';
 import ImageLayer from 'ol/layer/Image';
 import TileLayer from 'ol/layer/Tile';
 import ImageCanvasSource from 'ol/source/ImageCanvas';
-import Stamen from 'ol/source/Stamen';
 import { transformExtent } from 'ol/proj';
 // declare function require(name:string):any;
 // const proj = (<any>require('ol/proj')).default;
@@ -21,7 +20,7 @@ export default class VelocityLayer {
   private _canvasLayer: any = null;
   private _windy: Windy = null;
   private _context: any = null;
-  private _displayTimeout: number = 0;
+  private _displayTimeout: any = 0;
   private _mouseControl: any  = null;
 
   constructor(options: any) {
