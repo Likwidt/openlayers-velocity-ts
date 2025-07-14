@@ -4,6 +4,8 @@ import MapBound from "./mapBound";
 import Windy from "./windy";
 import 'ol/ol.css';
 
+import './script';
+
 (<any>window).VelocityLayer = VelocityLayer;
 (<any>window).CanvasBound = CanvasBound;
 (<any>window).MapBound = MapBound;
