@@ -4,8 +4,9 @@ import { WMTSCapabilities } from "ol/format";
 import WMTS, { optionsFromCapabilities } from "ol/source/WMTS";
 import VelocityLayer from "../src/velocityLayer";
 import data from './data'
+import { VelocityLayerOptions } from "../src/types";
 
-const velocityOptions = {
+const velocityOptions = <VelocityLayerOptions>{
   displayValues: true,
   displayOptions: {
     velocityType: 'GBR Wind',
@@ -22,6 +23,7 @@ const velocityOptions = {
   // maxVelocity: 10,         // used to align color scale
   velocityScale: 0.01,    // modifier for particle animations, arbitrarily defaults to 0.005
   particleMultiplier: 1/100,
+  frameRate: 15, // frames per second
   particleAge: 64,
   lineWidth: 1
 }
