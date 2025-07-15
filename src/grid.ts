@@ -19,7 +19,7 @@ export default class Grid {
         this.width = width;
     }
 
-    get valueRange () : number[] {
+    private get valueRange () : number[] {
         if (!this.data.length) {
             return [0, 0];
         }
@@ -36,7 +36,7 @@ export default class Grid {
      * @param λ Longitude
      * @param φ Latitude
      */
-    get (λ: number, φ: number): Vector {
+    public get (λ: number, φ: number): Vector {
         const fλ = this.floorMod(λ - this.λ0, 360) / this.Δλ;  // calculate longitude index in wrapped range [0, 360)
         const fφ = (this.φ0 - φ) / this.Δφ;                 // calculate latitude index in direction +90 to -90
 
@@ -88,7 +88,7 @@ export default class Grid {
      * @param g11 point at col_1 and line_1
      * @return interpolated vector
      */
-    interpolation (x: number, y: number, g00: Vector, g10:Vector, g01: Vector, g11: Vector): Vector {
+    private interpolation (x: number, y: number, g00: Vector, g10:Vector, g01: Vector, g11: Vector): Vector {
         var rx = (1 - x);
         var ry = (1 - y);
         var a = rx * ry,
@@ -105,7 +105,7 @@ export default class Grid {
 	 * @returns {number} returns remainder of floored division, i.e., floor(a / n). Useful for consistent modulo
 	 *          of negative numbers. See http://en.wikipedia.org/wiki/Modulo_operation.
 	 */
-	floorMod (a: number, n: number): number {
+	private floorMod (a: number, n: number): number {
 		return a - n * Math.floor(a / n);
     };
 
@@ -113,7 +113,7 @@ export default class Grid {
      * Detect if x is a value
 	 * @returns {boolean} true if the specified value is not null and not undefined.
 	 */
-	isValue (x: any): boolean {
+	private isValue (x: any): boolean {
 		return x !== null && x !== undefined;
 	};
 }

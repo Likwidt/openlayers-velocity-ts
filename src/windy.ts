@@ -1,11 +1,11 @@
-import MapBound from "./mapBound";
 import Vector from "./vector";
 import Grid from "./grid";
 import ColorScale from "./colorScale";
-import CanvasBound from "./canvasBound";
 import Particule from "./particle";
 import AnimationBucket from "./animationBucket";
 import Layer from "./layer";
+import { Map } from "ol";
+import { VelocityData } from "./types";
 
 export default class Windy {
 
@@ -16,7 +16,6 @@ export default class Windy {
   private Δφ: number;
   private ni: number;
   private nj: number;
-  private canvas: any = null;
   private colorScale: ColorScale;
   private velocityScale: number;
   private particuleMultiplier = 1 / 300;
@@ -27,17 +26,14 @@ export default class Windy {
   private layer: Layer;
   private particules: Particule[] = [];
   private animationBucket: AnimationBucket;
-  private context2D: any;
-  private animationLoop: any = null;
+  private context2D: CanvasRenderingContext2D;
+  private animationLoop: (number | NodeJS.Timeout) = null;
   private frameTime: number;
-  private then = 0;
 
 
-  constructor(options: any) {
-    this.canvas = options.canvas;
-    if (options.minVelocity === undefined && options.maxVelocity === undefined) {
-      this.autoColorRange = true;
-    }
+  constructor(private canvas: HTMLCanvasElement, private options: any) {
+    this.context2D = canvas.getContext("2d");
+    this.autoColorRange = options.minVelocity === undefined && options.maxVelocity === undefined;
     this.colorScale = new ColorScale(options.minVelocity || 0, options.maxVelocity || 10, options.colorScale);
     this.velocityScale = options.velocityScale || 0.01;
     this.particleAge = options.particleAge || 64;
@@ -48,16 +44,16 @@ export default class Windy {
     this.frameTime = 1000 / frameRate;
   }
 
-  get particuleCount() {
+  private get particuleCount() {
     const particuleReduction = ((/android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i).test(navigator.userAgent)) ? (Math.pow(window.devicePixelRatio, 1 / 3) || 1.6) : 1;
     return Math.round(this.layer.canvasBound.width * this.layer.canvasBound.height * this.particuleMultiplier) * particuleReduction;
   }
 
-  /**
-   * Load data
-   * @param data
-   */
-  setData(data: any[]) {
+  public setData(data?: [VelocityData, VelocityData]): void {
+    if (!data || !Array.isArray(data) || data.length !== 2) {
+      return;
+    }
+
     let uData: any = null;
     let vData: any = null;
     const grid: Vector[] = [];
@@ -84,9 +80,6 @@ export default class Windy {
     uData.data.forEach((u: number, index: number) => {
       grid.push(new Vector(u, vData.data[index]));
     })
-
-    //console.log('uData', uData);
-    //console.log('vData', vData);
 
     this.grid = new Grid(
       grid,
@@ -128,56 +121,7 @@ export default class Windy {
     }
   }
 
-  floorMod(a: number, n: number) {
-    return a - n * Math.floor(a / n);
-  };
-
-  isValue(x: any) {
-    return x !== null && x !== undefined;
-  };
-
-  bilinearInterpolateVector(x: number, y: number, g00: any, g10: any, g01: any, g11: any) {
-    var rx = (1 - x);
-    var ry = (1 - y);
-    var a = rx * ry, b = x * ry, c = rx * y, d = x * y;
-    var u = g00.u * a + g10.u * b + g01.u * c + g11.u * d;
-    var v = g00.v * a + g10.v * b + g01.v * c + g11.v * d;
-    return [u, v, Math.sqrt(u * u + v * v)];
-  };
-
-  /* Get interpolated grid value from Lon/Lat position
-  * @param λ {Float} Longitude
-  * @param φ {Float} Latitude
-  * @returns {Object}
-  */
-  interpolate(λ: number, φ: number): any {
-    if (!this.grid) {
-      return null;
-    }
-    var i = this.floorMod(λ - this.λ0, 360) / this.Δλ; // calculate longitude index in wrapped range [0, 360)
-    var j = (this.φ0 - φ) / this.Δφ; // calculate latitude index in direction +90 to -90
-
-    var fi = Math.floor(i);
-    var ci = fi + 1;
-    var fj = Math.floor(j);
-    var cj = fj + 1;
-    var row = this.grid[fj];//Dont know why he dosent found any row ERRRROR
-    if (row) {
-      var g00 = row[fi];
-      var g10 = row[ci];
-      if (this.isValue(g00) && this.isValue(g10) && (row = this.grid[cj])) {
-        var g01 = row[fi];
-        var g11 = row[ci];
-        if (this.isValue(g01) && this.isValue(g11)) {
-          // All four points found, so interpolate the value.
-          return this.bilinearInterpolateVector(i - fi, j - fj, g00, g10, g01, g11);
-        }
-      }
-    }
-    return null;
-  };
-
-  getParticuleWind(p: Particule): Vector {
+  private getParticuleWind(p: Particule): Vector {
     const lngLat = this.layer.canvasToMap(p.x, p.y);
     const wind = this.grid.get(lngLat[0], lngLat[1]);
     p.intensity = wind.intensity;
@@ -187,7 +131,7 @@ export default class Windy {
     return wind;
   }
 
-  start(layer: Layer) {
+  public start(layer: Layer, map: Map) {
 
     this.context2D = this.canvas.getContext("2d");
     this.context2D.lineWidth = this.particuleLineWidth;
@@ -197,42 +141,40 @@ export default class Windy {
     this.layer = layer;
     this.animationBucket = new AnimationBucket(this.colorScale);
 
-    this.particules.splice(0, this.particules.length);
-    for (let i = 0; i < this.particuleCount; i++) {
+    this.particules = [];
+    for (let i = 0, n = this.particuleCount; i < n; i++) {
       this.particules.push(this.layer.canvasBound.getRandomParticule(this.particleAge));
     }
 
-    this.then = new Date().getTime();
-
-    this.frame();
+    this.frame(map);
   }
 
-  frame() {
-    this.animationLoop = requestAnimationFrame(() => {
-      this.frame()
-    });
-    var now = new Date().getTime();
-    var delta = now - this.then;
-    if (delta > this.frameTime) {
-      this.then = now - (delta % this.frameTime);
+  private frame(map: Map): void {
+    if (this.options.frameRate) {
+      this.animationLoop = setTimeout(() => this.frame(map), this.frameTime);
+    } else {
+      this.animationLoop = requestAnimationFrame(() => this.frame(map));
+    }
+   
       this.evolve();
       this.draw();
-    }
+      map.render();
   }
 
-  evolve() {
+  private evolve(): void {
     this.animationBucket.clear();
-    this.particules.forEach((p: Particule) => {
+    for (let i = 0, n = this.particules.length; i < n; i++) {
+      const p = this.particules[i];
       p.grow();
       if (p.isDead) {
         this.layer.canvasBound.resetParticule(p);
       }
       const wind = this.getParticuleWind(p);
       this.animationBucket.add(p, wind);
-    });
+    };
   }
 
-  draw() {
+  private draw(): void {
     this.context2D.globalCompositeOperation = "destination-in";
     this.context2D.fillRect(
       this.layer.canvasBound.xMin,
@@ -247,14 +189,20 @@ export default class Windy {
     this.animationBucket.draw(this.context2D);
   }
 
-  stop() {
-    this.particules.splice(0, this.particules.length);
+  public stop(): void {
+    this.particules.length = 0;;
     if (this.animationBucket) {
         this.animationBucket.clear();
     }
     if (this.animationLoop) {
-      clearTimeout(this.animationLoop);
+      if (this.options.frameRate) {
+        clearTimeout(this.animationLoop as NodeJS.Timeout);
+      } else {
+        cancelAnimationFrame(this.animationLoop as number);
+      }
+
       this.animationLoop = null;
+      this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
   }
 

@@ -13,21 +13,21 @@ export default class CanvasBound {
         this.yMax = yMax;
     }
 
-    get width () : number {
+    public get width(): number {
         return this.xMax - this.xMin;
     }
 
-    get height () : number {
+    public get height(): number {
         return this.yMax - this.yMin;
     }
 
-    getRandomParticule(maxAge: number): Particule  {
+    public getRandomParticule(maxAge: number): Particule  {
         const x = Math.round(Math.floor(Math.random() * this.width) + this.xMin);
         const y = Math.round(Math.floor(Math.random() * this.height) + this.yMin);
         return new Particule(x, y, maxAge);
     }
 
-    resetParticule(p: Particule): Particule {
+    public resetParticule(p: Particule): Particule {
         const x = Math.round(Math.floor(Math.random() * this.width) + this.xMin);
         const y = Math.round(Math.floor(Math.random() * this.height) + this.yMin);
         p.reset(x, y);
