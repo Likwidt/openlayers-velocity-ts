@@ -23,7 +23,7 @@ const DEFAULT_VELOCITY_LAYEROPTIONS = <VelocityLayerOptions>{
     data: null
   };
 
-export default class VelocityLayer {
+export default class VelocityLayer extends ImageLayer<ImageCanvasSource> {
 
   private _options: VelocityLayerOptions;
   private _map: Map = null;
@@ -32,16 +32,19 @@ export default class VelocityLayer {
 
   private _canvas = document.createElement('canvas');
   private _canvasSource = new ImageCanvasSource({ canvasFunction: this._canvasFunction.bind(this), projection: 'EPSG:3857' });
-  private _canvasLayer: ImageLayer<ImageCanvasSource> = new ImageLayer({ source: this._canvasSource });
+  // private _canvasLayer: ImageLayer<ImageCanvasSource> = new ImageLayer({ source: this._canvasSource });
 
   constructor(options: Partial<VelocityLayerOptions>) {
+    super({ visible: true, source: null });
+    this.setSource(this._canvasSource);
     this._options = Object.assign(DEFAULT_VELOCITY_LAYEROPTIONS, options || {});
     this._windy = new Windy(this._canvas, this._options);
+    
   }
 
-  public getMapLayer() {
-    this._initMap();
-    return this._canvasLayer;
+  public addToMap(map: Map): void {
+    map.getLayers().push(this as any);
+    this._initMap(map);
   }
 
   public clear(): void {
@@ -52,39 +55,19 @@ export default class VelocityLayer {
     this._options.data = data;
 
     this._windy.setData(data);
-    this._canvasSource.changed();
+    this._canvasSource.refresh();
   }
 
-  public get visibility(): boolean {
-    return this._canvasLayer.getVisible();
-  }
-
-  public set visibility(visible: boolean) {
-    this._canvasLayer.setVisible(visible);
-    if (visible) {
-      this._startWindy();
-    } else {
-      this.clear();
-    }
-  }
-
-  private async _initMap(): Promise<void> {
-    if (this._map instanceof Map) { return; }
-    while (this._map === null) {
-      await new Promise<void>(resolve => setTimeout(() => {
-        const _map = this._canvasLayer.getMapInternal();
-        if (_map instanceof Map) {
-          this._map = _map;
-          this._map.on('movestart', () => this.clear());
-          this._map.on('moveend', () => this._canvasSource.changed());
-        }
-        resolve();
-      }, 0));
-    }
+  private _initMap(map: Map): void {
+    this._map = map;
+    this._map.on('movestart', () => this.clear());
+    this._map.on('moveend', () => this._canvasSource.changed());
   }
 
   private _canvasFunction(extent: any, resolution: any, pixelRatio: any, size: any, projection: any) {
     if (!this._map) { return; }
+
+    console.log('VelocityLayer._canvasFunction', extent, resolution, pixelRatio, size, projection);
 
     this._canvas.setAttribute('width', size[0].toString());
     this._canvas.setAttribute('height', size[1].toString());
@@ -96,7 +79,7 @@ export default class VelocityLayer {
   }
 
   private _startWindy(): void {
-    if (!this._canvasLayer.getVisible() || !this._options.data || !this._canvasSize) { return; }
+    if (!this._map || !this.getVisible() || !this._options.data || !this._canvasSize) { return; }
 
     const extent = this._map.getView().calculateExtent(this._canvasSize);
     const extentLL = transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
@@ -116,7 +99,7 @@ export default class VelocityLayer {
 
   private _restartWindy(data?: [VelocityData, VelocityData]): void {
     this.clear();
-    if (this.visibility !== true) { return; }
+    if (this.getVisible() !== true) { return; }
     if (data) { this._windy.setData(data);}
     this._startWindy();
   }

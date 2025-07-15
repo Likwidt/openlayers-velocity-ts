@@ -45,17 +45,17 @@ function createBaseLayer(): TileLayer<WMTS> {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const v_layer = new VelocityLayer(velocityOptions);
-
-  new Map({
+  const map = new Map({
     target: 'mapid',
-    layers: [createBaseLayer(), v_layer.getMapLayer()],
+    layers: [createBaseLayer()],
     view: new View({ center: [0, 0], zoom: 2 })
   });
 
-  v_layer.setData(data as any)
-
+  const v_layer = new VelocityLayer(velocityOptions);
   
+  v_layer.setData(data as any);
+
+  v_layer.addToMap(map);
 });
 
 
