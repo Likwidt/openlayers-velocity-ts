@@ -17,11 +17,10 @@ export default class VelocityLayer {
   private _canvas: any = null;
   private _canvasExtent: any = null;
   private _canvasSize: any = null;
-  private _canvasLayer: any = null;
+  private _canvasLayer: ImageLayer<ImageCanvasSource> = null;
   private _windy: Windy = null;
   private _context: any = null;
   private _displayTimeout: any = 0;
-  private _mouseControl: any  = null;
 
   constructor(options: any) {
     // console.debug('VelocityLayer.constructor');
@@ -41,7 +40,6 @@ export default class VelocityLayer {
     }, options || {});
 
     console.debug(this.options);
-
   }
 
   _canvasFunction(extent: any, resolution: any, pixelRatio: any, size: any, projection: any) {
@@ -189,5 +187,4 @@ export default class VelocityLayer {
     this._windy = null;
     // this._map.removeLayer(this._canvasLayer);
   }
-
 }
