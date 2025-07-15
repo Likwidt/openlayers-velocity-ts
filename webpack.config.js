@@ -2,12 +2,15 @@ const path = require('path');
 
 module.exports = {
   mode: 'development',
-  entry: './src/index.ts',
+  entry: {
+    'velocity-layer': './src/index.ts', // plugin
+    'demo': './demo/script.ts'           // demo entry (includes map + layer usage)
+  },
   devtool: 'inline-source-map',
   module: {
     rules: [
       {
-        test: /\.ts?$/,
+        test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/
       },
@@ -19,27 +22,25 @@ module.exports = {
       {
         test: /\.css$/,
         exclude: /node_modules/,
-        use: [
-          'style-loader',
-          {
-            loader: 'typings-for-css-modules-loader',
-            options: {
-              modules: true,
-              namedExport: true
-            }
-          }
-        ]
+        use: ['style-loader', 'css-loader']
       }
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.css']
+    extensions: ['.tsx', '.ts', '.js']
   },
   output: {
-    filename: 'openlayers-velocity.js',
     path: path.resolve(__dirname, 'lib'),
+    filename: '[name].js',
     publicPath: '/lib/',
+    library: {
+      name: 'VelocityLayerLib',
+      type: 'umd'
+    },
     clean: true
+  },
+  externals: {
+    ol: 'ol'
   },
   devServer: {
     static: {

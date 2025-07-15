@@ -2,7 +2,7 @@ import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
 import { WMTSCapabilities } from "ol/format";
 import WMTS, { optionsFromCapabilities } from "ol/source/WMTS";
-import VelocityLayer from "./velocityLayer";
+import VelocityLayer from "../src/velocityLayer";
 import data from './data'
 
 const velocityOptions = {
