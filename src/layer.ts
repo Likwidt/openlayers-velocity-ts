@@ -18,7 +18,7 @@ export default class layer {
      * @param y 
      * return [lng, lat]
      */
-    canvasToMap (x: number, y: number): number[] {
+    public canvasToMap (x: number, y: number): number[] {
         const mapLonDelta = this.mapBound.east - this.mapBound.west;
         const worldMapRadius = (this.canvasBound.width / this.rad2deg(mapLonDelta)) * 360/(2 * Math.PI);
         const mapOffsetY = ( worldMapRadius / 2 * Math.log( (1 + Math.sin(this.mapBound.south) ) / (1 - Math.sin(this.mapBound.south))  ));
@@ -30,7 +30,7 @@ export default class layer {
         return [λ, φ];
     };
         
-    mercY (φ: number): number {
+    private mercY (φ: number): number {
         return Math.log( Math.tan( φ / 2 + Math.PI / 4 ) );
     };
         
@@ -40,7 +40,7 @@ export default class layer {
      * @param φ Latitude
      * @return [x, y]
      */
-    mapToCanvas (λ: number, φ: number): number[] {
+    private mapToCanvas (λ: number, φ: number): number[] {
         const ymin = this.mercY(this.mapBound.south);
         const ymax = this.mercY(this.mapBound.north);
         const xFactor = this.canvasBound.width / ( this.mapBound.east - this.mapBound.west );
@@ -53,11 +53,11 @@ export default class layer {
     };
 
 
-    deg2rad (deg: number): number {
+    private deg2rad (deg: number): number {
         return deg * Math.PI / 180;
     };
 
-    rad2deg (rad: number): number {
+    private rad2deg (rad: number): number {
         return rad * 180 / Math.PI;
     };
 
@@ -69,7 +69,7 @@ export default class layer {
      * @param y 
      * @return []
      */
-    distortion (λ: number, φ: number, x: number, y: number): number[] {
+    private distortion (λ: number, φ: number, x: number, y: number): number[] {
         const τ = 2 * Math.PI;
         const H = Math.pow(10, -5.2);
         const hλ = λ < 0 ? H : -H;
@@ -100,7 +100,7 @@ export default class layer {
      * @param wind [u, v]
      * @return []
      */
-    distort (λ: number, φ: number, x: number, y: number, scale: number, wind: Vector): Vector {
+    public distort (λ: number, φ: number, x: number, y: number, scale: number, wind: Vector): Vector {
         const u = wind.u * scale;
         const v = wind.v * scale;
         const d = this.distortion(λ, φ, x, y);

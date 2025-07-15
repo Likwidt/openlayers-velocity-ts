@@ -8,30 +8,28 @@ export default class AnimationBucket {
 
     constructor (colorScale: ColorScale) {
         this.colorScale = colorScale;
-        for (let i=0; i<colorScale.size; i++) {
+        for (let i = 0 , n = colorScale.size; i < n; i++) {
             this.buckets.push([]);
         }
     }
 
-    clear() {
-        this.buckets.forEach((particuleSet: Particule[]) => {
-            particuleSet.splice(0, particuleSet.length)
-        })
+    public clear(): void {
+        // Clear all buckets
+        for (let i = 0, n = this.buckets.length; i < n; i++) { this.buckets[i] = []; }
     }
 
-    add (p: Particule, v: Vector) {
+    public add(p: Particule, v: Vector): void {
         const index = this.colorScale.getColorIndex(p.intensity)
-        if (index<0 || index>= this.buckets.length) {
-            console.log(index);
-            return;
-        }
+        if (index < 0 || index >= this.buckets.length) { return; }
         p.xt = p.x + v.u;
         p.yt = p.y + v.v;
         this.buckets[index].push(p);
     }
 
-    draw (context2D: any) {
-        this.buckets.forEach((bucket: Particule[], i: number) => {
+    public draw (context2D: any): void {
+        for (let i = 0, n = this.buckets.length; i < n; i++) {
+            const bucket = this.buckets[i];
+
             if (bucket.length > 0) {
                 context2D.beginPath();
                 context2D.strokeStyle = this.colorScale.colorAt(i);
@@ -43,6 +41,6 @@ export default class AnimationBucket {
                 });
                 context2D.stroke();
             }
-        });
+        };
     }
 }

@@ -7,7 +7,7 @@ export default class Vector {
         this.v = v || 0;
     }
 
-    get intensity () {
+    public get intensity () {
         return Math.sqrt(this.u * this.u + this.v * this.v);
     }
 }

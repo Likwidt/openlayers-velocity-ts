@@ -14,17 +14,17 @@ export default class Particule {
         this.maxAge = maxAge;
     }
 
-    reset(x: number, y: number) {
+    public reset(x: number, y: number): void {
         this.x = x;
         this.y = y;
         this.age = 0;
     }
 
-    get isDead () : boolean {
+    public get isDead(): boolean {
         return this.age > this.maxAge;
     }
 
-    grow () {
+    public grow(): void {
         this.age++;
     }
 }

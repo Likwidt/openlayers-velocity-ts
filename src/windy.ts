@@ -142,7 +142,7 @@ export default class Windy {
     this.animationBucket = new AnimationBucket(this.colorScale);
 
     this.particules = [];
-    for (let i = 0; i < this.particuleCount; i++) {
+    for (let i = 0, n = this.particuleCount; i < n; i++) {
       this.particules.push(this.layer.canvasBound.getRandomParticule(this.particleAge));
     }
 
@@ -163,14 +163,15 @@ export default class Windy {
 
   private evolve(): void {
     this.animationBucket.clear();
-    this.particules.forEach((p: Particule) => {
+    for (let i = 0, n = this.particules.length; i < n; i++) {
+      const p = this.particules[i];
       p.grow();
       if (p.isDead) {
         this.layer.canvasBound.resetParticule(p);
       }
       const wind = this.getParticuleWind(p);
       this.animationBucket.add(p, wind);
-    });
+    };
   }
 
   private draw(): void {
