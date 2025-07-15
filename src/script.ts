@@ -16,7 +16,6 @@ const velocityOptions = {
     displayEmptyString: 'No velocity data',
     speedUnit: 'm/s'
   },
-  data: data, // see demo/*.json, or wind-js-server for example data service
 
   // OPTIONAL
   // minVelocity: 0,          // used to align color scale
@@ -46,50 +45,18 @@ function createBaseLayer(): TileLayer<WMTS> {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  const v_layer = new VelocityLayer(velocityOptions);
 
-  const map = new Map({
+  new Map({
     target: 'mapid',
-    layers: [createBaseLayer()],
+    layers: [createBaseLayer(), v_layer.getMapLayer()],
     view: new View({ center: [0, 0], zoom: 2 })
   });
+
+  v_layer.setData(data as any)
+
+  
 });
- 
-
-// let velocity = new VelocityLayer({
-
-//   displayValues: true,
-//   displayOptions: {
-//     velocityType: 'GBR Wind',
-//     position: 'bottomleft',
-//     emptyString: 'No velocity data',
-//     angleConvention: 'bearingCW',
-//     displayPosition: 'bottomleft',
-//     displayEmptyString: 'No velocity data',
-//     speedUnit: 'm/s'
-//   },
-//   data: data, // see demo/*.json, or wind-js-server for example data service
-
-//   // OPTIONAL
-//   // minVelocity: 0,          // used to align color scale
-//   // maxVelocity: 10,         // used to align color scale
-//   velocityScale: 0.01,    // modifier for particle animations, arbitrarily defaults to 0.005
-//   particleMultiplier: 1/100,
-//   particleAge: 64,
-//   lineWidth: 1
-// });
-
-function removeWind() {
-  // velocity.removeFromMap();
-}
-
-function addWind() {
-  // velocity.addToMap(mymap, document.getElementById('velocity-canvas'));
-  //velocity.addToMap(mymap);
-  // TODO: Figure out how to keep animation going without updating layer
-  setInterval(function() {
-       // velocity._canvasLayer.changed();
-  }, 50); 
-}
 
 
 
