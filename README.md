@@ -33,3 +33,7 @@ npm run build
 
 ## License
 MIT License (MIT)
+
+
+[npm-image]: https://badge.fury.io/js/openlayers-velocity-ts.svg
+[npm-url]: https://www.npmjs.com/package/openlayers-velocity-ts
